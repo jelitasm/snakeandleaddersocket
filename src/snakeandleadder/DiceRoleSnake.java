@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
@@ -41,10 +42,10 @@ public class DiceRoleSnake extends Application {
     public boolean player2Turn = true;
     
     public static int player1XPos = 40;
-    public static int player1YPos = 740;
+    public static int player1YPos = 760;
     
     public static int player2XPos = 40;
-    public static int player2YPos = 740;
+    public static int player2YPos = 760;
     
     public boolean gameStart = false;
     
@@ -70,10 +71,22 @@ public class DiceRoleSnake extends Application {
         player1 = new Circle(40);
         player1.setId("player1");
         player1.getStyleClass().add("style.class");
-        return root;
+        player1.setTranslateX(player1XPos);
+        player1.setTranslateY(player1YPos);
         
+        player2 = new Circle(40);
+        player2.setId("player2");
+        player2.getStyleClass().add("style.css");
+        player2.setTranslateX(player2XPos);
+        player2.setTranslateY(player2YPos);
         
+        Button button = new Button("Player1");
+        button.setTranslateX(700);
+        button.setTranslateY(820);
+        //button.setOnAction(new EventHandler); menit ke 40:43
         
+        tileGroup.getChildren().addAll(player1, player2);
+        return root;    
     }
     
     @Override
