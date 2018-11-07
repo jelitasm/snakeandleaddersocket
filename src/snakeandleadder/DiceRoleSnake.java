@@ -24,11 +24,14 @@ public class DiceRoleSnake extends Application {
     public int rand;
     public Label randResult;
     
+    public int cirPos[][] = new int[10][10];
+    public int leadderPosition[][] = new int[6][3];
+            
     public static final int Tile_Size = 80;
     public static final int width = 10;
     public static final int height = 10;
     
-    public Circle player;
+    public Circle player1;
     public Circle player2;
     
     public int playerPosition1 = 1;
@@ -37,6 +40,13 @@ public class DiceRoleSnake extends Application {
     public boolean player1Turn = true;
     public boolean player2Turn = true;
     
+    public static int player1XPos = 40;
+    public static int player1YPos = 740;
+    
+    public static int player2XPos = 40;
+    public static int player2YPos = 740;
+    
+    public boolean gameStart = false;
     
     private Group tileGroup = new Group();
     
@@ -56,6 +66,10 @@ public class DiceRoleSnake extends Application {
                 tileGroup.getChildren().add(tile);
             }
         }
+        
+        player1 = new Circle(40);
+        player1.setId("player1");
+        player1.getStyleClass().add("style.class");
         return root;
         
         
