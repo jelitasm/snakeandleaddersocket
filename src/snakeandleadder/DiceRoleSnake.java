@@ -8,6 +8,7 @@ package snakeandleadder;
 import java.awt.Label;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -48,6 +49,7 @@ public class DiceRoleSnake extends Application {
     public static int player2YPos = 760;
     
     public boolean gameStart = false;
+    public Button gameButton;
     
     private Group tileGroup = new Group();
     
@@ -80,12 +82,66 @@ public class DiceRoleSnake extends Application {
         player2.setTranslateX(player2XPos);
         player2.setTranslateY(player2YPos);
         
-        Button button = new Button("Player1");
+        Button button = new Button("Player2");
         button.setTranslateX(700);
         button.setTranslateY(820);
-        //button.setOnAction(new EventHandler); menit ke 40:43
+        button.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                if(gameStart){
+                    if(player1Turn){
+                        
+                    }
+                }
+            }
+        });
         
-        tileGroup.getChildren().addAll(player1, player2);
+        Button button2 = new Button("Player1");
+        button2.setTranslateX(80);
+        button2.setTranslateY(820);
+        button.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                if(gameStart){
+                    if(player2Turn){
+                    
+                    }
+                }
+            }
+        });
+        
+        gameButton = new Button("Start Game");
+        gameButton.setTranslateX(80);
+        gameButton.setTranslateY(820);
+       gameButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                gameButton.setText("Game Stated");
+                player1XPos = 40;
+                player1YPos = 760;
+                
+                player2XPos = 40;
+                player2YPos = 760;
+                
+                player1.setTranslateX(player1XPos);
+                player1.setTranslateY(player1YPos);
+                player2.setTranslateX(player2XPos);
+                player2.setTranslateY(player2YPos);
+                
+                }
+        });
+        
+        randResult = new Label("0");
+        randResult.setLocation(300,820);
+        //randResult.setTranslateX(300);
+        //randResult.setTranslateY(820);
+        
+        //Image img = new Image()
+       
+        tileGroup.getChildren().addAll(player1, player2, button, button2, gameButton);
         return root;    
     }
     
