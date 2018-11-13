@@ -5,6 +5,9 @@
  */
 package snakeandleadder;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import javafx.scene.control.Label;
 import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
@@ -24,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -33,9 +37,10 @@ import javafx.animation.AnimationTimer;
 public class DiceRoleSnake extends Application {
     public int rand;
     public Label randResult;
+    public Label usernameLabel;
     
     public int cirPos[][] = new int[10][10];
-    public int leadderPosition[][] = new int[6][3];
+   public int leadderPosition[][] = new int[6][3];
             
     public static final int Tile_Size = 60;
     public static final int width = 10;
@@ -44,18 +49,7 @@ public class DiceRoleSnake extends Application {
     public Circle player1;
     public Circle player2;
     
-    public int playerPosition1 = 1;
-    public int playerPosition2 = 1;
-    
-    public boolean player1Turn = false;
-    public boolean player2Turn = false;
-    
-    public static int player1XPos = 30;
-    public static int player1YPos = 590;
-    
-    public static int player2XPos = 30;
-    public static int player2YPos = 590;
-    
+   
     public boolean gameStart = false;
     public Button gameButton;
     
@@ -63,8 +57,17 @@ public class DiceRoleSnake extends Application {
     public int posCir2 =1;
     private Group tileGroup = new Group();
     
+    public String username;
+    public String host;
+    int port;
+    Socket socket;
+    DataOutputStream dos;
+    public boolean attachmentOpen = false;
+    private boolean isConnected = false;
+    
     private Parent createConetent()
     {
+        initFrame("aldhan", "localhost", 8080);
         Pane root = new Pane();
         root.setPrefSize(width*Tile_Size, (height * Tile_Size)+80);
         root.getChildren().addAll(tileGroup);
@@ -88,19 +91,21 @@ public class DiceRoleSnake extends Application {
             }
         }
         
-        player1 = new Circle(20);
-        player1.setId("player1");
-        player1.setFill(Color.AQUA);
-        player1.getStyleClass().add("snakeandleader/style.class");
-        player1.setTranslateX(player1XPos);
-        player1.setTranslateY(player1YPos);
+        final Player player1 = new Player();
+        player1.setPosition(1);
+        player1.setIsTurn(false);
+        player1.setxPos(30);
+        player1.setyPos(590);
+        player1.setPosCir(1);
         
-        player2 = new Circle(20);
-        player2.setId("player2");
-        player2.setFill(Color.RED);
-        player2.getStyleClass().add("snakeandleader/style.css");
-        player2.setTranslateX(player2XPos);
-        player2.setTranslateY(player2YPos);
+        Circle gaco1 = new Circle(20);
+        gaco1.setId("player1");
+        gaco1.setFill(Color.AQUA);
+        gaco1.getStyleClass().add("snakeandleader/style.class");
+        gaco1.setTranslateX(player1.getxPos());
+        gaco1.setTranslateY(player1.getyPos());
+        player1.setGaco(gaco1);
+        
         
         Button button1 = new Button("Player1");
         button1.setTranslateX(450);
@@ -110,43 +115,17 @@ public class DiceRoleSnake extends Application {
             @Override
             public void handle(ActionEvent event) {
                 if(gameStart){
-                    if(player1Turn){
-                        randResult.setText(String.valueOf(getDiceValue()));
-                        move1Player();
-                        translatePlayer(player1XPos, player1YPos, player1);
-                        player1Turn = false;
-                        player2Turn = true;
-                        
-                        if (player1XPos == 200 && player1YPos ==760){
-                            translatePlayer(player1XPos = 80, player1YPos = 520, player1);
-                        }
+                    if(player1.isTurn){
+                        int rand = getDiceValue();
+                        randResult.setText(String.valueOf(rand));
+                        player1.movePlayer(rand);
+                        translatePlayer(player1.getxPos(), player1.getyPos(), player1.getGaco());
+                        player1.setIsTurn(false);
                     }
                 }
             }
         });
         
-        Button button2 = new Button("Player2");
-        button2.setTranslateX(80);
-        button2.setTranslateY(650);
-        button2.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                if(gameStart){
-                    if(player2Turn){
-                     randResult.setText(String.valueOf(getDiceValue()));
-                     move2Player();
-                     translatePlayer(player2XPos, player2YPos, player2);
-                        player2Turn = false;
-                        player1Turn = true;
-                    
-                         if (player2XPos == 200 && player2YPos ==760){
-                            translatePlayer(player2XPos = 80, player2YPos = 520, player2);
-                        }
-                    }
-                }
-            }
-        });
         
         gameButton = new Button("Start Game");
         gameButton.setTranslateX(250);
@@ -156,23 +135,11 @@ public class DiceRoleSnake extends Application {
             @Override
             public void handle(ActionEvent event) {
                 gameStart = true;
-                player1Turn = true;
-                if (player2Turn == false) {
-                    player1Turn = true;
-                }else{
-                    player2Turn = true;
-                }
+                player1.setIsTurn(true);
                 gameButton.setText("Game Stated");
-                player1XPos = 30;
-                player1YPos = 590;
                 
-                player2XPos = 30;
-                player2YPos = 590;
-                
-                player1.setTranslateX(player1XPos);
-                player1.setTranslateY(player1YPos);
-                player2.setTranslateX(player2XPos);
-                player2.setTranslateY(player2YPos);
+                player1.getGaco().setTranslateX(player1.getxPos());
+                player1.getGaco().setTranslateY(player1.getyPos());
                 gameStart = true;
                 
                 }
@@ -182,73 +149,28 @@ public class DiceRoleSnake extends Application {
         randResult.setTranslateX(400);
         randResult.setTranslateY(650);
         
+        usernameLabel = new Label("1233213");
+        usernameLabel.setTranslateX(100);
+        usernameLabel.setTranslateY(650);
+        
+        
         Image image = new Image("snakeandleadder/snakebg.jpg"); 
         
         ImageView bgImage = new ImageView();
         bgImage.setImage(image);
         bgImage.setFitHeight(620);
         bgImage.setFitWidth(600);
+
         
-       
-        tileGroup.getChildren().addAll(bgImage, player1, player2,button1, button2, gameButton, randResult);
+        Button button2 = new Button("Player2");
+        tileGroup.getChildren().addAll(bgImage, player1.gaco,button1, button2, gameButton, randResult,usernameLabel);
         return root;    
     }
     private int getDiceValue(){
         rand = (int)(Math.random()*6+1);
         return rand;
     }
-    private void move1Player(){
-        for (int i = 0; i < rand; i++) {
-            if (posCir1 % 2 == 1) {
-                player1XPos+=60;
-            }
-            if (posCir1 % 2 == 0){
-                player1XPos-=60;
-            }
-            if (player1XPos > 600){
-                player1YPos -= 62;
-                player1XPos -= 60;
-                 posCir1 ++;
-            }
-            if (player1XPos < 30 ){
-                player1YPos -= 62;
-                player1XPos += 60;
-                posCir1 ++;
-            }
-            if (player1XPos < 30 || player1YPos < 30 ){
-                player1YPos = 40;
-                player1XPos = 40;
-                randResult.setText("Player 1 won");
-                gameButton.setText("Start again");
-            }
-        }
-    }
-      private void move2Player(){
-        for (int i = 0; i < rand; i++) {
-            if (posCir2 % 2 == 1) {
-                player2XPos+=60;
-            }
-            if (posCir2 % 2 == 0){
-                player2XPos-=60;
-            }
-            if (player2XPos > 600){
-                player2YPos -= 62;
-                player2XPos -= 60;
-                 posCir2 ++;
-            }
-            if (player2XPos < 30 ){
-                player2YPos -= 62;
-                player2XPos += 60;
-                posCir2 ++;
-            }
-            if (player2XPos < 30 || player2YPos < 30 ){
-                player2YPos = 30;
-                player2XPos = 30;
-                randResult.setText("Player 2 won");
-                gameButton.setText("Start again");
-            }
-        }
-    }
+      
     private void translatePlayer(int x, int y, Circle b){
         TranslateTransition animate = new TranslateTransition(Duration.millis(1000),b);
         animate.setToX(x);
@@ -274,6 +196,39 @@ public class DiceRoleSnake extends Application {
                 
     }
 
+    public void initFrame(String username, String host, int port){
+        this.username = username;
+        this.host = host;
+        this.port = port;
+        usernameLabel.setText("Masuk sebagai : " + username);
+        /** Connect **/
+        connect();
+    }
+    
+    public void connect(){
+        try {
+            socket = new Socket(host, port);
+            dos = new DataOutputStream(socket.getOutputStream());
+            /** Send our username **/
+            dos.writeUTF("CMD_JOIN "+ username);
+            
+            /** Start Client Thread **/
+            new Thread(new ClientThread(socket, this)).start();
+//            jButton1.setEnabled(true);
+            // were now connected
+            isConnected = true;
+            
+        }
+        catch(IOException e) {
+            isConnected = false;
+//            JOptionPane.showMessageDialog(this, "Gagal konek ke server, silahkan coba beberapa saat lagi.!","Koneksi putus",JOptionPane.ERROR_MESSAGE);
+//            appendMessage("[IOException]: "+ e.getMessage(), "Error", java.awt.Color.RED, java.awt.Color.RED);
+        }
+    }
+    
+    public boolean isConnected(){
+        return this.isConnected;
+    }
     /**
      * @param args the command line arguments
      */
