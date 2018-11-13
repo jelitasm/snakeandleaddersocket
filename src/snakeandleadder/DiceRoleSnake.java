@@ -200,19 +200,19 @@ public class DiceRoleSnake extends Application {
     private void move1Player(){
         for (int i = 0; i < rand; i++) {
             if (posCir1 % 2 == 1) {
-                player1XPos+=80;
+                player1XPos+=60;
             }
             if (posCir1 % 2 == 0){
-                player1XPos-=80;
+                player1XPos-=60;
             }
-            if (player1XPos > 760){
-                player1YPos -= 80;
-                player1XPos -= 80;
+            if (player1XPos > 600){
+                player1YPos -= 62;
+                player1XPos -= 60;
                  posCir1 ++;
             }
             if (player1XPos < 30 ){
-                player1YPos -= 80;
-                player1XPos -= 80;
+                player1YPos -= 62;
+                player1XPos += 60;
                 posCir1 ++;
             }
             if (player1XPos < 30 || player1YPos < 30 ){
@@ -226,24 +226,24 @@ public class DiceRoleSnake extends Application {
       private void move2Player(){
         for (int i = 0; i < rand; i++) {
             if (posCir2 % 2 == 1) {
-                player2XPos+=80;
+                player2XPos+=60;
             }
             if (posCir2 % 2 == 0){
-                player2XPos-=80;
+                player2XPos-=60;
             }
-            if (player2XPos > 760){
-                player2YPos -= 80;
-                player2XPos -= 80;
+            if (player2XPos > 600){
+                player2YPos -= 62;
+                player2XPos -= 60;
                  posCir2 ++;
             }
-            if (player2XPos < 40 ){
-                player2YPos -= 80;
-                player2XPos -= 80;
+            if (player2XPos < 30 ){
+                player2YPos -= 62;
+                player2XPos += 60;
                 posCir2 ++;
             }
-            if (player2XPos < 40 || player2YPos < 40 ){
-                player2YPos = 40;
-                player2XPos = 40;
+            if (player2XPos < 30 || player2YPos < 30 ){
+                player2YPos = 30;
+                player2XPos = 30;
                 randResult.setText("Player 2 won");
                 gameButton.setText("Start again");
             }
